@@ -1,0 +1,54 @@
+Django
+djangorestframework
+django-cors-headers
+django-filter
+
+#utilities
+python-dotenv
+pytz
+
+# authentication
+django-allauth
+djangorestframework-simplejwt
+
+# asynchronous support
+asgiref 
+
+# security
+pyjwt
+
+
+# database
+sqlparse
+psycopg2-binary
+
+# media and static files
+boto3
+django-storages
+Pillow
+
+#background tasks
+celery
+redis
+django-redis
+
+#real-time features
+channels
+channels-redis
+
+#deployment
+gunicorn
+whitenoise
+
+#testing
+pytest
+pytest-django
+
+#monitoring and logging
+sentry-sdk
+
+
+
+
+
+

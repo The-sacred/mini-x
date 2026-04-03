@@ -1,0 +1,24 @@
+#virtual environment
+venv/
+.env/
+
+#environment variables
+.env
+.env.*
+
+
+#python specific
+__pycache__/
+*.pyc
+*$py.class
+
+#Django specific
+*.log
+db.sqlite3
+media/
+staticfiles/
+
+#VSCode specific
+.vscode/
+.idea/
+
