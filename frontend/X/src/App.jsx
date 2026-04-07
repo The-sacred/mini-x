@@ -1,4 +1,5 @@
 import { startTransition, useDeferredValue, useEffect, useEffectEvent, useRef, useState } from "react";
+import { NavLink, Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import { apiRequest, getCollection, getErrorMessage } from "./api";
 import {
@@ -27,10 +28,10 @@ import {
 } from "./utils";
 
 const NAV_ITEMS = [
-  { id: "home", label: "Home", icon: HomeIcon },
-  { id: "explore", label: "Explore", icon: CompassIcon },
-  { id: "pulse", label: "Campus Pulse", icon: SparkIcon },
-  { id: "profile", label: "Profile", icon: ProfileIcon },
+  { id: "home", label: "Home", icon: HomeIcon, path: "/" },
+  { id: "explore", label: "Explore", icon: CompassIcon, path: "/explore" },
+  { id: "pulse", label: "Campus Pulse", icon: SparkIcon, path: "/pulse" },
+  { id: "profile", label: "Profile", icon: ProfileIcon, path: "/profile" },
 ];
 
 function loadStoredSession() {
@@ -52,11 +53,12 @@ function saveStoredSession(session) {
 }
 
 function App() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [session, setSession] = useState(loadStoredSession);
   const sessionRef = useRef(session);
   const [authMode, setAuthMode] = useState("signin");
   const [authForm, setAuthForm] = useState(DEFAULT_AUTH_FORM);
-  const [activeView, setActiveView] = useState("home");
   const [feedTab, setFeedTab] = useState("for-you");
   const [searchValue, setSearchValue] = useState("");
   const deferredSearch = useDeferredValue(searchValue);
@@ -170,7 +172,6 @@ function App() {
     setProfileImageFile(null);
     setProfileImagePreview("");
     setFeedTab("for-you");
-    setActiveView("home");
     setSearchValue("");
     if (message) {
       setStatusMessage(message);
@@ -216,9 +217,9 @@ function App() {
     );
   }
 
-  function navigateTo(viewId) {
+  function navigateTo(path, options = {}) {
     startTransition(() => {
-      setActiveView(viewId);
+      navigate(path, options);
     });
   }
 
@@ -287,6 +288,17 @@ function App() {
     loadDashboard();
   }, [session?.access]);
 
+  useEffect(() => {
+    if (session?.access || location.pathname === "/auth") {
+      return;
+    }
+
+    navigate("/auth", {
+      replace: true,
+      state: { from: location.pathname },
+    });
+  }, [location.pathname, navigate, session?.access]);
+
   async function handleAuthSubmit(event) {
     event.preventDefault();
     setBusy((current) => ({ ...current, auth: true }));
@@ -325,6 +337,7 @@ function App() {
     });
     setAuthForm(DEFAULT_AUTH_FORM);
     setStatusMessage(authMode === "signin" ? "Welcome back to campus." : "Your uniNet account is ready.");
+    navigateTo(typeof location.state?.from === "string" ? location.state.from : "/", { replace: true });
   }
 
   function handleComposerImageChange(event) {
@@ -528,6 +541,7 @@ function App() {
     .filter((person) => !person.is_following)
     .sort((left, right) => (right.followers_count || 0) - (left.followers_count || 0))
     .slice(0, 4);
+  const activeView = NAV_ITEMS.find((item) => item.path === location.pathname)?.id;
 
   if (!session?.access) {
     return (
@@ -624,6 +638,10 @@ function App() {
     );
   }
 
+  if (!activeView) {
+    return <Navigate replace to="/" />;
+  }
+
   return (
     <div className="app-page">
       <div className="ambient ambient-one" />
@@ -641,15 +659,15 @@ function App() {
 
           <nav className="sidebar-nav">
             {NAV_ITEMS.map((item) => (
-              <button
+              <NavLink
                 key={item.id}
-                className={`nav-item ${activeView === item.id ? "active" : ""}`}
-                onClick={() => navigateTo(item.id)}
-                type="button"
+                className={({ isActive }) => `nav-item ${isActive ? "active" : ""}`}
+                end={item.path === "/"}
+                to={item.path}
               >
                 <item.icon />
                 <span>{item.label}</span>
-              </button>
+              </NavLink>
             ))}
           </nav>
 
@@ -682,8 +700,8 @@ function App() {
                 onChange={(event) => {
                   const nextValue = event.target.value;
                   setSearchValue(nextValue);
-                  if (nextValue.trim() && activeView !== "explore") {
-                    navigateTo("explore");
+                  if (nextValue.trim() && location.pathname !== "/explore") {
+                    navigateTo("/explore");
                   }
                 }}
               />

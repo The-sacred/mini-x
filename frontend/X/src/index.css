@@ -519,10 +519,12 @@ svg {
   border-radius: 18px;
   color: var(--ink);
   display: flex;
+  font: inherit;
   gap: 0.85rem;
   max-width: 100%;
   padding: 0.95rem 1rem;
   text-align: left;
+  text-decoration: none;
   width: 100%;
 }
 
