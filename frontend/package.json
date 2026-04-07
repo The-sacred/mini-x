@@ -1,4 +1,10 @@
 {
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix ./X run dev",
+    "build": "npm --prefix ./X run build",
+    "lint": "npm --prefix ./X run lint"
+  },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.2",
     "axios": "^1.14.0",
